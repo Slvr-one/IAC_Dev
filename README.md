@@ -1,12 +1,12 @@
 # IAC_Dev
 A Development repo for getting started with IAC tools like Terraform, Crossplane &amp; pulumni. 
 
-## Terraform/
+## Terraform-
 
-### Ready/
+### Ready-
 
 #### 1:
-<script src="https://gist.github.com/Slvr-one/1f6f46af65e82c9653389141369b8c30.js"></script>
+please refer to the [gist][tf_r_1-gist].
 
 
 ### prequsites:
@@ -21,3 +21,5 @@ A Development repo for getting started with IAC tools like Terraform, Crossplane
 [tmux]: https://github.com/tmux/tmux/wiki
 [tf-cli]: https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli
 [aws-cli]: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
+
+[tf_r_1-gist]: https://gist.github.com/Slvr-one/1f6f46af65e82c9653389141369b8c30
