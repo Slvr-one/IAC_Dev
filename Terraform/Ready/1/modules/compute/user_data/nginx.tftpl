@@ -1,0 +1,15 @@
+#!/bin/bash
+set -euo pipefail
+
+port="${nginx_port}"
+
+apt update
+apt install -y nginx
+
+ufw allow 'Nginx HTTP'
+
+sleep 10
+
+sed -i "s/listen 80 default_server;/listen $port default_server;/g" /etc/nginx/sites-available/default
+nginx -t
+service nginx reload
