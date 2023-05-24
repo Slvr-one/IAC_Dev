@@ -1,0 +1,16 @@
+apiVersion: ec2.aws.crossplane.io/v1beta1
+kind: Subnet
+metadata:
+  name: first-subnet
+  labels:
+    name: first-subnet
+spec:
+  forProvider:
+    region: eu-central-1
+    availabilityZone: eu-central-1a
+    vpcIdSelector:
+      matchLabels:
+        name: main-vpc
+    cidrBlock: 10.0.0.0/17
+  providerConfigRef:
+    name: aws-provider-config

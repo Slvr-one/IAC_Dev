@@ -1,0 +1,14 @@
+# Exclude credential configuration files like aws-creds.conf
+*creds.conf
+crossplane-azure-provider-key.json
+
+# Exclude Helm charts lock and packages
+**/**/charts
+**/**/Chart.lock
+
+# dotenv environment variables file
+.env
+.env.test
+
+# DynamoDB Local files
+.dynamodb/
