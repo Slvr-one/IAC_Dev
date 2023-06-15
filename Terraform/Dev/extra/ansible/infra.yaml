@@ -1,0 +1,27 @@
+---
+# Install Python
+- hosts: all
+  gather_facts: false
+
+  tasks:
+    - name: Install Python
+      raw: "apt-get -y -q install python"
+      become: true
+      retries: 10
+      delay: 20
+
+# Setup K8s components
+- hosts: etcd
+  roles:
+    - common
+    - etcd
+
+- hosts: controller
+  roles:
+    - common
+    - controller
+
+- hosts: worker
+  roles:
+    - common
+    - worker

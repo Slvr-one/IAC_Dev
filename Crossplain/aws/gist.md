@@ -18,10 +18,3 @@ Crossplane can be considered as a Kubernetes add-on, which means that it makes u
 - Composite resources:
 > They are defined using Crossplane configuration, as defined above
   They group-managed resources together to allow for the creation of more complex, business-oriented infrastructure resources
-
--  install the AWS provider:
-> kubectl apply -f crossplane_config/aws_provider.yaml
-- create a ProviderConfig:
-> kubectl apply -f crossplane_config/aws_provider_config.yaml
-- create resources:
-> kubectl apply -f resources/

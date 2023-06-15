@@ -1,8 +1,8 @@
 
 resource "aws_elb" "ubuntu_lb" {
-  count   = 1
-  name    = var.elb_name
-  subnets = var.public_subnets_ids.*
+  count           = 1
+  name            = var.elb_name
+  subnets         = var.public_subnets_ids.*
   security_groups = [var.main_sg_id]
 
   instances                   = aws_instance.ubuntu.*.id

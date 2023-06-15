@@ -1,0 +1,84 @@
+# apiVersion: argoproj.io/v1alpha1
+# kind: Application
+# metadata:
+#   name: argocd-crm
+# spec:
+#   project: default
+
+#   destination:
+#     server: https://kubernetes.default.svc
+#     namespace: argocd
+
+#   source:
+#     path: argocd-crm
+
+#   syncPolicy:
+#     automated:
+#       prune: true
+#     syncOptions:
+#       - resourceFilter: 
+#         includeGroup: extensions
+#       - resourceFilter: 
+#         includeGroup: cert-manager.io
+#       - resourceFilter: 
+#         includeGroup: networking.k8s.io
+
+#   # syncPlans:
+#   #   - syncPeriod: 10m
+#   #     syncStrategy:
+#   #       resourceFilter:
+#   #         exclude:
+#   #           kind: Deployment
+#   templates:
+#   - name: cert-manager
+#     source:
+#       path: cert-manager
+#     resource:
+#       - apiVersion: cert-manager.io/v1alpha2
+#         kind: Issuer
+#         metadata:
+#           name: letsencrypt-prod
+#         spec:
+#           acme:
+#             server: https://acme-v02.api.letsencrypt.org/directory
+#             email: email@example.com
+#             privateKeySecretRef:
+#               name: letsencrypt-prod
+#             solvers:
+#             - dns01:
+#                 cloudflare:
+#                   apiKeySecretRef:
+#                     key: api-key
+#                     name: cloudflare-credentials
+#                   email: email@example.com
+#   - name: nginx-ingress
+#     source:
+#       path: nginx-ingress
+#     resource:
+#       - apiVersion: networking.k8s.io/v1
+#         kind: Ingress
+#         metadata:
+#           name: example-ingress
+#         spec:
+#           rules:
+#           - host: example.com
+#             http:
+#               paths:
+#               - backend:
+#                   serviceName: example-service
+#                   servicePort: 80
+#   - name: argocd
+#     source:
+#       path: argocd
+#     resource:
+#       - apiVersion: argoproj.io/v1alpha1
+#         kind: Application
+#         metadata:
+#           name: argocd-server
+#         spec:
+#           destination:
+#             namespace: argocd
+#           source:
+#             path: argocd-server
+#             repoURL: https://github.com/argoproj/argocd.git
+#             targetRevision: HEAD

@@ -1,0 +1,64 @@
+pipeline {
+    agent any
+    stages {
+        stage('AWS-Terraform') {
+            //parameters {
+                //password (name: 'AWS_ACCESS_KEY_ID')
+                //password (name: 'AWS_SECRET_ACCESS_KEY')
+            //}
+            environment {
+                TF_WORKSPACE = 'development' //Sets the Terraform Workspace
+                TF_IN_AUTOMATION = 'true'
+                //AWS_ACCESS_KEY_ID = "${params.AWS_ACCESS_KEY_ID}"
+                //AWS_SECRET_ACCESS_KEY = "${params.AWS_SECRET_ACCESS_KEY}"
+            }
+            steps {
+              dir("where/your/tf/file/is") {
+                    //sh "pwd"
+                    //sh "ls -al"
+                    withAWS( credentials: env.AWS_CREDENTIALS) {
+                      echo "AWS-Terraform Start>>>"
+                      // Terraform Init
+                      sh "terraform init -input=false"
+                        // Terraform validate
+                        sh "terraform validate"
+                      // Terraform Plan
+                      sh "terraform plan -out=tfplan -input=false -var-file='dev.tfvars'"
+                      // Terraform Apply
+                      //input 'Apply Plan'
+                      sh "terraform apply -input=false -auto-approve tfplan"
+                      echo "AWS-Terraform Done<<<"
+                    }	
+              }                
+            }
+        }
+        stage("Automated-Tests"){
+        ......
+        ......    
+        }
+        stage('AWS-Terraform-Destroy') {
+            //parameters {
+                //password (name: 'AWS_ACCESS_KEY_ID')
+                //password (name: 'AWS_SECRET_ACCESS_KEY')
+            //}
+            environment {
+                TF_WORKSPACE = 'development' //Sets the Terraform Workspace
+                TF_IN_AUTOMATION = 'true'
+                //AWS_ACCESS_KEY_ID = "${params.AWS_ACCESS_KEY_ID}"
+                //AWS_SECRET_ACCESS_KEY = "${params.AWS_SECRET_ACCESS_KEY}"
+            }
+            steps {
+              dir("where/your/tf/file/is") {
+                //sh "pwd"
+                //sh "ls -al"
+                withAWS( credentials: env.AWS_CREDENTIALS) {
+                  echo "AWS-Terraform Destroy Start>>>"
+                  // Terraform Destroy
+                  sh "terraform destroy -input=false -auto-approve"         
+                  echo "AWS-Terraform Destroy Done<<<"
+                }	
+              }                
+            }
+        }
+    }
+}

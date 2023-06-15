@@ -3,13 +3,15 @@ resource "aws_security_group" "main" {
   description = "SSH on port 22 and HTTP on port 80"
   vpc_id      = aws_vpc.main.id
 
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "allow ssh to instances"
-  }
+  # dynamic "ingress" { #TODO
+  #   for_each = var.ingress_ports
+  #   content {
+  #     from_port   = ingress.value
+  #     to_port     = ingress.value
+  #     protocol    = "tcp"
+  #     cidr_blocks = ["0.0.0.0/0"]
+  #   }
+  # }
 
   ingress {
     from_port   = var.nginx_port

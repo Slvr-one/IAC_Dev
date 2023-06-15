@@ -1,0 +1,11 @@
+---
+- hosts: all
+  gather_facts: no
+
+  tasks:
+    - name: Install Python
+      raw: "apt-get -y -q install python"
+      become: true
+      retries: 10
+      delay: 20
+  

@@ -1,0 +1,24 @@
+# apiVersion: storage.k8s.io/v1
+# kind: StorageClass
+# metadata:
+#   name: jenkins-sc
+# provisioner: kubernetes.io/gce-pd
+# volumeBindingMode: Immediate
+# allowVolumeExpansion: true
+# reclaimPolicy: Delete
+# parameters:
+#   type: pd-standard
+#   fstype: ext4
+#   replication-type: none
+# #/var/run/docker.sock
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  namespace: jenkins
+  name: jenkins-sc
+provisioner: kubernetes.io/aws-ebs
+parameters:
+  type: gp2
+  fsType: ntfs
+volumeBindingMode: WaitForFirstConsumer

@@ -10,16 +10,20 @@ terraform {
     }
   }
 
-  backend "s3" {
-    bucket         = "dev-tf-state-12867"
-    key            = "dev/tf.tfstate"
-    region         = "eu-central-1"
-    dynamodb_table = "tf-state"
-    encrypt        = true
-  }
+  # backend "s3" {
+  #   bucket         = "dev-tf-state-12867"
+  #   key            = "dev/tf.tfstate"
+  #   region         = "eu-central-1"
+  #   dynamodb_table = "tf-state"
+  #   encrypt        = true
+  # }
 }
 
 provider "aws" {
   profile = var.aws_profile
   region  = var.aws_region
+
+  default_tags {
+    tags = var.gen_tags
+  }
 }

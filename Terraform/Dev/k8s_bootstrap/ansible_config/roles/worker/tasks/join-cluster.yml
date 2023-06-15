@@ -1,0 +1,13 @@
+# depending on this check, cluster join will be skipped
+- name: check if kubernetes is already initialized
+  stat: 
+    path: /etc/kubernetes/kubelet.conf
+  register: k8s_is_installed
+
+# output will be a list of master ips, which we will split in the next step and return the first entry
+- name: Create List of masters
+  set_fact: master_ips="{{ groups['masters']| map('extract', hostvars, ['ansible_host']) | join(',') }}"
+
+- name: join cluster
+  shell: kubeadm join "{{ master_ips.split(',')[0] }}":6443 --token {{ kubeadm_token }} --discovery-token-unsafe-skip-ca-verification
+  when: not k8s_is_installed.stat.exists

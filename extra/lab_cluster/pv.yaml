@@ -1,0 +1,67 @@
+# apiVersion: v1
+# kind: PersistentVolume
+# metadata:
+#   name: jenkins-home
+# spec:
+#   storageClassName: "jenkins"
+#   # storageClassName: efs-sc
+#   accessModes:
+#     - ReadWriteOnce
+#     # - ReadWriteMany
+#   claimRef:
+#     namespace: default
+#     name: jenkins-home-claim
+#   gcePersistentDisk:
+#     pdName: gke-pv
+#     fsType: ext4
+#   capacity:
+#     storage: 5Gi #50
+#   volumeMode: Filesystem
+#   persistentVolumeReclaimPolicy: Retain
+#   csi:
+#     driver: efs.csi.aws.com
+#     volumeHandle: fs-92b853aa
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  namespace: jenkins
+  name: jenkins-pv
+  labels:
+    type: local
+spec:
+  storageClassName: jenkins-sc
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteOnce
+  claimRef:
+    namespace: default
+    name: jenkins-home-claim
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /home/dvir/jenkins_home
+  # nodeAffinity:
+  #   required:
+  #     nodeSelectorTerms:
+  #     - matchExpressions:
+  #       - key: kubernetes.io/hostname
+  #         operator: In
+  #         values:
+  #         - worker-node01
+
+# # ---
+# apiVersion: v1
+# kind: PersistentVolume
+# metadata:
+#   name: jenkins-sock
+# spec:
+#   capacity:
+#     storage: 5Gi
+#   accessModes:
+#   - ReadWriteOnce
+#   persistentVolumeReclaimPolicy: Retain
+#   storageClassName: local-storage
+#   local:
+#     path: /mnt/disks/ssd1
