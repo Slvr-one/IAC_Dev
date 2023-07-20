@@ -1,64 +1,152 @@
+
+def incrementVersion(String version) {
+    def parts = version.tokenize('.')
+    def major = parts[0].toInteger()
+    def minor = parts[1].toInteger()
+    def patch = parts[2].toInteger()
+
+    patch++
+    if (patch > 99) {
+        patch = 0
+        minor++
+        if (minor > 99) {
+            minor = 0
+            major++
+        }
+    }
+
+    return "${major}.${minor}.${patch}"
+}
+
 pipeline {
-    agent any
-    stages {
-        stage('AWS-Terraform') {
-            //parameters {
-                //password (name: 'AWS_ACCESS_KEY_ID')
-                //password (name: 'AWS_SECRET_ACCESS_KEY')
-            //}
-            environment {
-                TF_WORKSPACE = 'development' //Sets the Terraform Workspace
-                TF_IN_AUTOMATION = 'true'
-                //AWS_ACCESS_KEY_ID = "${params.AWS_ACCESS_KEY_ID}"
-                //AWS_SECRET_ACCESS_KEY = "${params.AWS_SECRET_ACCESS_KEY}"
-            }
-            steps {
-              dir("where/your/tf/file/is") {
-                    //sh "pwd"
-                    //sh "ls -al"
-                    withAWS( credentials: env.AWS_CREDENTIALS) {
-                      echo "AWS-Terraform Start>>>"
-                      // Terraform Init
-                      sh "terraform init -input=false"
-                        // Terraform validate
-                        sh "terraform validate"
-                      // Terraform Plan
-                      sh "terraform plan -out=tfplan -input=false -var-file='dev.tfvars'"
-                      // Terraform Apply
-                      //input 'Apply Plan'
-                      sh "terraform apply -input=false -auto-approve tfplan"
-                      echo "AWS-Terraform Done<<<"
-                    }	
-              }                
-            }
+  options {
+    timestamps()
+    timeout(time: 5, unit: 'MINUTES')
+    gitLabConnection('jenkins_gitlab')
+    // buildDiscarder(logRotator(numToKeepStr: '100'))
+  }
+
+  agent any
+  environment {
+    // Define environment variables here
+    DOCKER_IMAGE = 'bookmaker'
+    KUBECONFIG = '~/.kube/config'
+    TERRAFORM_DIR = '.'
+    INFRA_REPO = "git@github.com:Slvr-one/bookmaker.git" 
+    VERSION = '1.0.0' // initial version
+
+    TF_WORKSPACE = 'development' //Sets the Terraform Workspace
+    TF_IN_AUTOMATION = 'true'
+    //AWS_ACCESS_KEY_ID = "${params.AWS_ACCESS_KEY_ID}"
+    //AWS_SECRET_ACCESS_KEY = "${params.AWS_SECRET_ACCESS_KEY}"
+  }
+  triggers {
+    // pollSCM "* * * * *"
+    gitlab(
+      triggerOnPush: true,
+      setBuildDescription: true,
+      branchFilterType: "All",
+    )
+  }
+  stages {
+    stage('AWS-Terraform') {
+      // parameters {
+      //   password (name: 'AWS_ACCESS_KEY_ID')
+      //   password (name: 'AWS_SECRET_ACCESS_KEY')
+      // }
+      steps {
+        dir("infra/tf") {
+          //sh "pwd"
+          //sh "ls -laH"
+          withAWS(credentials: env.AWS_CREDENTIALS) {
+            echo "AWS-Terraform Start>>>"
+            sh "terraform init -input=false"
+            sh "terraform validate"
+            sh "terraform plan -out=tf_plans/tfplan -input=false -var-file='dev.tfvars'"
+            sh "terraform apply -input=false -auto-approve ./tfplans/tfplan"
+            echo "AWS-Terraform Done<<<"
+          }
         }
-        stage("Automated-Tests"){
-        ......
-        ......    
-        }
-        stage('AWS-Terraform-Destroy') {
-            //parameters {
-                //password (name: 'AWS_ACCESS_KEY_ID')
-                //password (name: 'AWS_SECRET_ACCESS_KEY')
-            //}
-            environment {
-                TF_WORKSPACE = 'development' //Sets the Terraform Workspace
-                TF_IN_AUTOMATION = 'true'
-                //AWS_ACCESS_KEY_ID = "${params.AWS_ACCESS_KEY_ID}"
-                //AWS_SECRET_ACCESS_KEY = "${params.AWS_SECRET_ACCESS_KEY}"
-            }
-            steps {
-              dir("where/your/tf/file/is") {
-                //sh "pwd"
-                //sh "ls -al"
-                withAWS( credentials: env.AWS_CREDENTIALS) {
-                  echo "AWS-Terraform Destroy Start>>>"
-                  // Terraform Destroy
-                  sh "terraform destroy -input=false -auto-approve"         
-                  echo "AWS-Terraform Destroy Done<<<"
-                }	
-              }                
+      }
+    }
+    stage("Automated-Tests") {
+      ......
+      ......
+    }
+    stage('Deploy to Kubernetes') {
+      steps {
+          sh 'kubectl apply -f ~/.kube/config'
+      }
+    }
+
+    stage('Release') {
+        steps {
+            script {
+                // Increment the version
+                env.VERSION = incrementVersion(env.VERSION)
+                // Build the Docker image with the new version tag
+                docker.build("${DOCKER_IMAGE}:${env.VERSION}"
+                // Push the Docker image to the registry
+                docker.withRegistry('env.INFRA_REPO', 'your-registry-credentials-id') {
+                    docker.image("${DOCKER_IMAGE}:${env.VERSION}").push()
+                }
             }
         }
     }
+    stage('AWS-Terraform-Destroy') {
+      //parameters {
+      //password (name: 'AWS_ACCESS_KEY_ID')
+      //password (name: 'AWS_SECRET_ACCESS_KEY')
+      //}
+      steps {
+        dir("infra/tf") {
+          //sh "pwd"
+          //sh "ls -laH"
+          withAWS(credentials: env.AWS_CREDENTIALS) {
+            echo "AWS-Terraform Destroy Start>>>"
+            sh "terraform destroy -input=false -auto-approve"
+            echo "AWS-Terraform Destroy Done<<<"
+          }
+        }
+      }
+    }
+  }
+  post {
+    success {
+      echo "its a success!"
+    }
+    failure {
+      echo "its a failure.."
+      // emailext (
+      //     to:      "${EMAIL_TO}",
+      //     subject: "Jenkins - ${JOB_NAME}, build - ${BUILD_DISPLAY_NAME} - ${currentBuild.currentResult}",
+      //     body:"""
+      //     <p>Jenkins job <a href='${JOB_URL}'>${JOB_NAME}</a> (<a href='${BUILD_URL}'>build ${BUILD_DISPLAY_NAME}</a>) has result <strong>${currentBuild.currentResult}</strong>!
+      //     <br>You can view the <a href='${BUILD_URL}console'>console log here</a>.</p>
+      //     <br><strong>terraform Workspaces list:</strong></p>
+      //     ${TERRAFORM_WORKSPACE}</p>
+      //     <br><strong>DeleBM Workspace list:</strong></p>
+      //     <br>${DELEBM_WORKSPACE}</p>
+      //     <p>Source code from commit: <a href='${GIT_URL}/commit/${GIT_COMMIT}'>${GIT_COMMIT}</a> (of branch <em>${GIT_BRANCH}</em>).</p>
+      //     <p><img src='https://www.jenkins.io/images/logos/jenkins/jenkins.png' alt='jenkins logo' width='123' height='170'></p>
+      //     """
+      // )
+    }
+    // failure {
+    //   // Actions to perform if the build fails
+    //   echo 'Build failed!'
+    //   mail to: 'dviross@outlook.com',
+    //     subject: "Failed Pipeline: ${currentBuild.fullDisplayName}",
+    //     body: "Something is wrong with ${env.BUILD_URL}"
+    // }
+    always {
+      echo "will get this done"
+    }
+    cleanup {
+      sh "docker compose down || true"
+      // sh "terraform apply -auto-approve ${DESTROY_PLAN}" 
+      cleanWs() //comment for testing
+
+    }
+  }
 }
