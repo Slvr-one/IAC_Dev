@@ -1,0 +1,22 @@
+
+apiVersion: iam.crossplane.io/v1beta1
+kind: Role
+metadata:
+  name: eks-role
+spec:
+  providerRef:
+    name: default
+  forProvider:
+    assumeRolePolicyDocument: |
+      {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Principal": {
+              "Service": "eks.amazonaws.com"
+            },  
+            "Action": "sts:AssumeRole"
+          }
+        ]
+      }

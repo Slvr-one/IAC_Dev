@@ -1,0 +1,9 @@
+apiVersion: route53.crossplane.io/v1beta1
+kind: HostedZone
+metadata:
+  name: example-zone
+spec:
+  providerRef:
+    name: default
+  forProvider:
+    name: example.com

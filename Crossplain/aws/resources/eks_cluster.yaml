@@ -1,0 +1,14 @@
+apiVersion: eks.crossplane.io/v1beta1
+kind: Cluster
+metadata:
+  name: my-cluster
+spec:
+  providerRef:
+    name: default
+  forProvider:
+    name: my-cluster
+    roleArn: arn:aws:iam::123456789012:role/eks-cluster
+    vpcConfig:
+      subnetIds:
+        - subnet-12345678
+        - subnet-87654321
