@@ -1,8 +1,0 @@
-- name: copy files
-  copy:
-    src: flannel/
-    dest: "/tmp/"
-
-# deploy flannel
-- name: "kubectl apply /tmp/flannel.yml"
-  shell: "kubectl apply -f /tmp/flannel.yml"
