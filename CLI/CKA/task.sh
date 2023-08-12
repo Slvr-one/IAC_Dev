@@ -1,5 +1,5 @@
-#!/bin/sh
-set -u
+#!/bin/bash
+set -eEuo pipefail
 
 main() {
     if [ -z "${1+x}" ]; then
@@ -45,7 +45,10 @@ setup_cluster() {
 
     install_cluster_addons
     set_single_node_cluster
-    go run ./scripts/set_multi_node.go
+
+    # go run ./scripts/set_multi_node.go
+    # python ./scripts/set_multi_node.py
+
     # set_multi_node_cluster
 }
 

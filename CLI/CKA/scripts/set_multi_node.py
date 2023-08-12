@@ -18,7 +18,8 @@ if __name__ == '__main__':
         set_multi_node_cluster('<control_plane_ip>', '<control_plane_port>', '<token>', '<discovery_token_ca_cert_hash>')
     else:
         # Default behavior
-        install_dependencies()
-        setup_cluster()
-        run_application()
-        perform_post_installation_tasks()
+        # install_dependencies()
+        # setup_cluster()
+        # run_application()
+        # perform_post_installation_tasks()
+        print("will continue with single node cluster")

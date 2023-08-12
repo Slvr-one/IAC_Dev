@@ -15,7 +15,7 @@ module "network" {
 }
 
 module "cluster" {
-  source = "./modules/cluster"
+  source = "./modules/aws_cluster"
 
   az   = data.aws_availability_zones.available.names[0] #var.az
   amis = var.amis
