@@ -1,7 +1,7 @@
-variable "instance_name" {
-  type     = string
-  nullable = true
-}
+# variable "instance_name" {
+#   type     = string
+#   nullable = true
+# }
 
 variable "aws_region" {
   type        = string
@@ -30,16 +30,16 @@ variable "instance_type" {
   nullable    = false
 }
 
-variable "volume_type" {
-  type        = string
-  description = "volume_type"
-  default     = "gp3"
-  nullable    = false
-}
+# variable "volume_type" {
+#   type        = string
+#   description = "volume_type"
+#   default     = "gp3"
+#   nullable    = false
+# }
 
-variable "volume_size" {
-  type        = number
-  description = "volume_size"
-  default     = 8
-  nullable    = false
-}
+# variable "volume_size" {
+#   type        = number
+#   description = "volume_size"
+#   default     = 8
+#   nullable    = false
+# }

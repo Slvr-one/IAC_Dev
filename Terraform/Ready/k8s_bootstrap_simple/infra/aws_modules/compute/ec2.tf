@@ -16,5 +16,5 @@ resource "aws_instance" "web" {
     volume_size           = var.volume_size
   }
 
-  user_data = filebase64("${path.module}/user_data/task.sh")
+  user_data = filebase64("${path.module}/scripts/tasker.sh")
 }
