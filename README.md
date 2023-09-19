@@ -1,8 +1,8 @@
 # IAC_Dev
 A Development repo for getting started with IAC tools.
 * Terraform
-* Crossplane[crossplane]
-* Pulumi[pulumi]
+* (Crossplane)[crossplane]
+* (Pulumi)[pulumi]
 
 ## TODO ->
 
